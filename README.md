@@ -1,2 +1,2 @@
-# EagleTRT-GPS-simulator
-Eagle TRT GPS simulator 
+# eagletrt-telemetry-simulator
+EagleTRT Telemetry GPS and CAN simulator.
