@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function ctrl_c() {
-        echo "in kill"
         kill $GPSID
         kill $CANID
 
@@ -16,8 +15,8 @@ GPSID=$!
 bash ./can.sh &
 CANID=$! 
 
-echo "can" $CANID
-echo "gps" $GPSID
+echo "CAN " $CANID
+echo "GPS " $GPSID
 
 # trap ctrl-c and call ctrl_c()
 

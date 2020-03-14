@@ -14,8 +14,8 @@ sudo modprobe vcan
 sudo ip link add dev can0 type vcan
 sudo ip link set up can0
 
-# starting infinity can player
-echo "starting infinity can player"
+# startingd can player
+echo "startingd can player"
 exec canplayer -l i -I can.log
 #canpl_id=$!
 
