@@ -35,7 +35,7 @@ will run the canplayer and the GPS simulator, once it starts some information wi
 * third line will let us know if CAN was already set up or if device (can0) was already existig
 * __interface used__, this is the interface the telemetry need to connect to in order to begin comunication trough the serial port, in this case `/dev/pts/4`.
   
-The reason why the telemetry service need to start after the simulator is that the __interface user__ need to be specified in the `config.json` in `/fenice-telemetria-sender/src`.
+The reason why the telemetry service need to start after the simulator is that the __interface used__ need to be specified in the `config.json` in `/fenice-telemetria-sender/src`.
 ```C
 "gps": {
     "plugged": 1,
