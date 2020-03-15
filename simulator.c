@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include "gps_service.h"
 
+int getDelta(int* previousT, int* currentT, char* line);
 
 int main(int argc, char const *argv[])
 {
-    
+    int previousT = 0, currentT = 0, deltaT = 0;
     //get the master id
     int gps_port = openGPSPort("/dev/ptmx");
     
@@ -50,6 +51,8 @@ int main(int argc, char const *argv[])
         while (t != -1)
         {
             t = getline(&line, &len, fp);
+            deltaT = getDelta(&previousT, &currentT, line);
+            sleep(deltaT);
             int written_bytes = write(gps_port,line,t);
             line = NULL;
             len = 0;
@@ -60,4 +63,37 @@ int main(int argc, char const *argv[])
     }
 
     return 0;
+}
+
+
+int getDelta(int* previousT, int* currentT, char* line){
+
+    previousT = currentT;
+    if (strstr(line,"GGA"))
+    {
+        gps_gga_struct* gga = (gps_gga_struct*) malloc(sizeof(gps_gga_struct));
+        gga = parseGGA(line);
+        currentT = atoi(gga->utc_time);
+        return currentT - previousT;
+    }
+    else if (strstr(line,"GLL"))
+    {
+        gps_gll_struct* gll = (gps_gll_struct*) malloc(sizeof(gps_gll_struct));
+        gll = parseGLL(line);
+        currentT = atoi(gll->utc_time);
+        return currentT - previousT;      
+    }
+    else if (strstr(line,"VTG"))
+    {
+        return 0;
+    
+    }
+    else if (strstr(line,"RMC"))
+    {
+        gps_rmc_struct* rmc = (gps_rmc_struct*) malloc(sizeof(gps_rmc_struct));
+        rmc = parseRMC(line);
+        currentT = atoi(rmc->utc_time);
+        return currentT - previousT; 
+    }
+
 }
