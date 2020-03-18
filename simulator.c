@@ -53,6 +53,7 @@ int main(int argc, char const *argv[])
             t = getline(&line, &len, fp);
             deltaT = getDelta(&previousT, &currentT, line);
             sleep(deltaT);
+            printf("%s\n",line);
             int written_bytes = write(gps_port,line,t);
             line = NULL;
             len = 0;
