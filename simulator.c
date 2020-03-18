@@ -74,14 +74,14 @@ int getDelta(int* previousT, int* currentT, char* line){
     {
         gps_gga_struct* gga = (gps_gga_struct*) malloc(sizeof(gps_gga_struct));
         gga = parseGGA(line);
-        currentT = atoi(gga->utc_time);
+        *currentT = atoi(gga->utc_time);
         return currentT - previousT;
     }
     else if (strstr(line,"GLL"))
     {
         gps_gll_struct* gll = (gps_gll_struct*) malloc(sizeof(gps_gll_struct));
         gll = parseGLL(line);
-        currentT = atoi(gll->utc_time);
+        *currentT = atoi(gll->utc_time);
         return currentT - previousT;      
     }
     else if (strstr(line,"VTG"))
@@ -93,7 +93,7 @@ int getDelta(int* previousT, int* currentT, char* line){
     {
         gps_rmc_struct* rmc = (gps_rmc_struct*) malloc(sizeof(gps_rmc_struct));
         rmc = parseRMC(line);
-        currentT = atoi(rmc->utc_time);
+        *currentT = atoi(rmc->utc_time);
         return currentT - previousT; 
     }
 
