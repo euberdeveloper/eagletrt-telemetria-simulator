@@ -82,7 +82,29 @@ gps_struct* readGPS(int serial_port);
 */ 
 void gpsFree(gps_struct* gps_data);
 
+/**
+ * 	Parse the NMEA line into gps__gga_struct
+ * @param the line to convert to struct
+*/
+ gps_gga_struct* parseGGA(char *message);
 
+ /**
+ * 	Parse the NMEA line into gps__gll_struct
+ * @param the line to convert to struct
+*/
+ gps_gll_struct* parseGLL(char *message);
+
+ /**
+ * 	Parse the NMEA line into gps__rmc_struct
+ * @param the line to convert to struct
+*/
+ gps_rmc_struct* parseRMC(char *message);
+
+/**
+ * 	Parse the NMEA line into gps__vtg_struct
+ * @param the line to convert to struct
+*/
+ gps_vtg_struct* parseVTG(char *message);
 #endif
 
 
