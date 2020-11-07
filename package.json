@@ -1,0 +1,44 @@
+{
+  "name": "@eagletrt/eagletrt-telemetria-simulator",
+  "version": "1.0.0",
+  "description": "EagleTRT telemetry simulator, in order to simulate on local machine the canbus and the gps serial port",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "bin": {
+    "eagle": "./dist/bin/index.js"
+  },
+  "scripts": {
+    "gps:compile": "cd gps_simulator && ./compile.sh",
+    "transpile": "tsc -p source",
+    "commit": "cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eagletrt/eagletrt-telemetria-simulator.git"
+  },
+  "author": "Eugenio Berretta <euberdeveloper@gmail.com> & Giacomo Ascari <giacomo.ascari@studenti.unitn.it>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eagletrt/eagletrt-telemetria-simulator/issues"
+  },
+  "homepage": "https://github.com/eagletrt/eagletrt-telemetria-simulator#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "shelljs": "^0.8.4",
+    "tree-kill": "^1.2.2",
+    "yargs": "^16.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.6",
+    "@types/shelljs": "^0.8.8",
+    "@types/yargs": "^15.0.9",
+    "commitizen": "^4.2.2",
+    "cz-conventional-changelog": "^3.3.0",
+    "typescript": "^4.0.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
