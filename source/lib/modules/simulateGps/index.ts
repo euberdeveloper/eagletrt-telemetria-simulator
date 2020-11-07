@@ -60,6 +60,7 @@ export class GpsSimulatorInstance {
                         this.logger.error('Gps player exited');
                         reject({ code, signal });
                     }
+                    this._finished = true;
                 });
                 this.childprocess.on('error', (code, signal) => {
                     reject({ code, signal });

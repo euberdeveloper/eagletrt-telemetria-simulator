@@ -45,6 +45,7 @@ export class CanSimulatorInstance {
                         this.logger.error('Can player exited');
                         reject({code, signal});
                     }
+                    this._finished = true;
                 });
                 this.childprocess.on('error', (code, signal) => {
                     reject({code, signal});
