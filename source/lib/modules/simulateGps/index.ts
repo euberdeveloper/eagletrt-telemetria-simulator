@@ -93,7 +93,7 @@ export class GpsSimulatorInstance {
             else {
                 logger.error(`Gps player finished with error code ${code}`);
             }
-            this._finished = false;
+            this._finished = true;
         });
     }
 
