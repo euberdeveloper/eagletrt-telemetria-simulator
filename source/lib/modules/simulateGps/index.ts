@@ -7,8 +7,8 @@ import { Logger } from '../../utils';
 
 export interface SimulateGpsOptions {
     silent: boolean;
-    // TODO: iterations: number; 
-    // TODO: simulateTime: boolean;
+    iterations: number;
+    simulateTime: boolean;
 };
 
 export type GpsInterfaceCallback = (gpsInterface: string) => void;
@@ -103,8 +103,8 @@ export class GpsSimulatorInstance {
 const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.gps.ubx');
 const DEFAULT_OPTIONS: SimulateGpsOptions = {
     silent: true,
-    // iterations: Infinity,
-    // simulateTime: true
+    iterations: Infinity,
+    simulateTime: true
 };
 
 export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: Partial<SimulateGpsOptions> = {}): Promise<GpsSimulatorInstance> {
@@ -114,13 +114,13 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         const logger = new Logger(handledOptions.silent, 'GPS');
 
         const commandOptions: string[] = [ handledSrc ];
-        // if (handledOptions.iterations) {
-        //     const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
-        //     commandOptions.push(`-l ${value}`);
-        // }
-        // if (!handledOptions.simulateTime) {
-        //     commandOptions.push('-t');
-        // }
+        if (handledOptions.iterations) {
+            const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
+            commandOptions.push(`-n ${value}`);
+        }
+        if (!handledOptions.simulateTime) {
+            commandOptions.push('-t');
+        }
         const stringifiedCommandOptions = commandOptions.join(' ');
         const pathToGpsSimulator = path.join(__dirname, '..', '..', '..', '..', 'gps_simulator', 'gps_simulator.out');
 

@@ -117,6 +117,19 @@ yargs
                                     default: false,
                                     describe: 'If logs will be displayed',
                                     type: 'boolean'
+                                },
+                                'simulate-time': {
+                                    alias: 't',
+                                    default: true,
+                                    describe: 'If the time of the gps log will be simulated',
+                                    type: 'boolean'
+                                },
+                                'iterations': {
+                                    alias: 'n',
+                                    default: Infinity,
+                                    describe: 'The number of iterations in which the gps log file will be simulated',
+                                    defaultDescription: 'If nothing is specified, the file is sent in an infinite loop',
+                                    type: 'number'
                                 }
                             });
                     },
@@ -125,6 +138,8 @@ yargs
                         const log = args.log;
                         const options: SimulateGpsOptions = {
                             silent: args.silent,
+                            iterations: args.iterations,
+                            simulateTime: args.simulateTime
                         };
                         await simulateGps(log, options);
                     }
@@ -161,16 +176,25 @@ yargs
                                     describe: 'If logs will be displayed',
                                     type: 'boolean'
                                 },
-                                'simulate-time': {
-                                    alias: 't',
+                                'can-simulate-time': {
                                     default: true,
                                     describe: 'If the time of the can log will be simulated',
                                     type: 'boolean'
                                 },
-                                'iterations': {
-                                    alias: 'n',
+                                'can-iterations': {
                                     default: Infinity,
                                     describe: 'The number of iterations in which the can log file will be sent to the canbus',
+                                    defaultDescription: 'If nothing is specified, the file is sent in an infinite loop',
+                                    type: 'number'
+                                },
+                                'gps-simulate-time': {
+                                    default: true,
+                                    describe: 'If the time of the gps log will be simulated',
+                                    type: 'boolean'
+                                },
+                                'gps-iterations': {
+                                    default: Infinity,
+                                    describe: 'The number of iterations in which the gps log file will be sent',
                                     defaultDescription: 'If nothing is specified, the file is sent in an infinite loop',
                                     type: 'number'
                                 }
@@ -185,11 +209,13 @@ yargs
                         const canOptions: SimulateCanOptions = {
                             canInterface: args.canInterface,
                             silent: args.silent,
-                            iterations: args.iterations,
-                            simulateTime: args.simulateTime
+                            iterations: args.canIterations,
+                            simulateTime: args.canSimulateTime
                         };
                         const gpsOptions: SimulateGpsOptions = {
                             silent: args.silent,
+                            iterations: args.gpsIterations,
+                            simulateTime: args.gpsSimulateTime
                         };
             
                         await Promise.all([
