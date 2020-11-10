@@ -1,3 +1,9 @@
+// this stuff avoid warning on implicit declaration of grantpt, ptsname, unlockpt and ...
+// getline (sometimes even usleep). stdlib.h requires some definition in order to function properly
+// for info look at https://linux.die.net/man/3/grantpt and https://linux.die.net/man/7/feature_test_macros
+#if defined(__linux__) || defined(__GLIBC__) || defined(__GNU__)
+#define _GNU_SOURCE			/* GNU glibc grantpt() prototypes */
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,7 +20,7 @@ void printError(char* message);
 
 int getDelta(int* previousT, int* currentT, char* line);
 
-int main(int argc, char const *argv[])
+int main(int argc, char * const * argv)
 {
 
     int ubxTime = 0;
