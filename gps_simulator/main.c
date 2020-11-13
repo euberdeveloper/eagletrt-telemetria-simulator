@@ -4,6 +4,13 @@
 #if defined(__linux__) || defined(__GLIBC__) || defined(__GNU__)
 #define _GNU_SOURCE			/* GNU glibc grantpt() prototypes */
 #endif
+
+// time stuff to get the current time in milliseconds
+#define _POSIX_C_SOURCE 200809L
+#include <time.h>
+#include <math.h>
+#include <inttypes.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -15,9 +22,23 @@
 #define _GNU_SOURCE 1
 #endif
 
+// 17053 messages in 74 seconds (according to default.gps.ubx)
+// 21685 messages in 126 seconds (according to esempio_tracciato_esterno.ubx)
+// 19489 messages in 96 seconds (according to esempio_tracciato_interno.ubx)
+
+// | Messages | Time [s] | Freq. [Hz] | Avg. freq | Interval [s] | Int. [us] |
+// |----------|----------|------------|-----------|--------------|-----------|
+// |    17053 |       74 |        230 |           |              |           |
+// |    21685 |      126 |        172 |    202    |   4.95E-3    |    4954   |
+// |    19489 |       96 |        203 |           |              |           |
+
+#define INTERVAL 128700 // [us] // between RMC messages, 1 each 26 packets
+
 void printMessage(char* message);
 void printError(char* message);
 
+unsigned long getUs(void);
+int getMsFromMessage(char *line);
 int getDelta(int* previousT, int* currentT, char* line);
 
 int main(int argc, char * const * argv)
@@ -99,6 +120,8 @@ int main(int argc, char * const * argv)
     printMessage(gpsInterfaceMessage);
     free(gpsInterfaceMessage);
     
+    unsigned long time =  getUs(), delay = 0; // useful for timerize
+
     while(ubxIterations){
         char* line = NULL;
         size_t len = 0;
@@ -117,8 +140,15 @@ int main(int argc, char * const * argv)
         {
             t = getline(&line, &len, fp);
             if (ubxTime) {
-                deltaT = getDelta(&previousT, &currentT, line);
-                sleep(deltaT);
+                if (strstr(line,"RMC")) { // RMC has a timestamp and starts a 26 msg.s block, then ended by GLL 
+                    delay = getUs() - time; // estimates the delay between the last RMC and now
+                    if (delay < 0) // check if the delay is negative or more than tolerable
+                        delay = 0;
+                    else if (delay > INTERVAL/2)
+                        delay = INTERVAL/2;
+                    usleep(INTERVAL - delay); // tune sleep to be as trustful as possible to INTERVAL
+                    time = getUs(); // update the timestamp of the last RMC
+                }
             }
             int written_bytes = write(gps_port,line,t);
             line = NULL;
@@ -134,6 +164,47 @@ int main(int argc, char * const * argv)
     return 0;
 }
 
+unsigned long getUs (void)
+{
+    struct timespec spec;
+    unsigned long result = 0;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &spec);
+    result += spec.tv_sec * 1000000;
+    result += spec.tv_nsec / 1000; // Convert nanoseconds to microseconds
+    return result;
+}
+
+
+int getMsFromMessage(char *line) {
+    double raw = 0;
+    int result = 0;
+    if (strstr(line,"GGA"))
+    {
+        gps_gga_struct* gga = (gps_gga_struct*) malloc(sizeof(gps_gga_struct));
+        gga = parseGGA(line);
+        raw = atof(gga->utc_time);
+        free(gga);
+    }
+    else if (strstr(line,"GLL"))
+    {
+        gps_gll_struct* gll = (gps_gll_struct*) malloc(sizeof(gps_gll_struct));
+        gll = parseGLL(line);
+        raw = atof(gll->utc_time);
+        free(gll);
+    }
+    else if (strstr(line,"RMC"))
+    {
+        gps_rmc_struct* rmc = (gps_rmc_struct*) malloc(sizeof(gps_rmc_struct));
+        rmc = parseRMC(line);
+        raw = atof(rmc->utc_time);
+        free(rmc);
+    }
+    result += (int)(raw*1000)%1000; //ms
+    result += ((int)raw%100)*1000; //s
+    result += ((int)(raw/100)%100)*1000*60; //m
+    result += ((int)raw/10000)*1000*60*60; //h
+    return result;
+}
 
 int getDelta(int* previousT, int* currentT, char* line){
 
