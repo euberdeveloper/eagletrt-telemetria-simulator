@@ -1,6 +1,12 @@
 import { execAsync, Logger } from '../../utils';
 
+/**
+ * The interface of the options for the virtualizeCan function.
+ */
 export interface VirtualizeCanOptions {
+    /**
+     * If true, the log will not be shown. Default: true.
+     */
     silent: boolean;
 };
 
@@ -8,11 +14,26 @@ const DEFAULT_OPTIONS: VirtualizeCanOptions =  {
     silent: true
 };
 
+/**
+ * The enum of the result for the virtualizeCan function.
+ */
 export enum VirtualizeCanResult {
+    /**
+     * Returned when the can interface has been virtualized.
+     */
     VIRTUALIZED = 'virtualized',
+    /**
+     * Returned when the can interface was already virtualized, so nothing has been done.
+     */
     ALREADY_VIRTUALIZED = 'already_virtualized'
 };
 
+/**
+ * It virtualizes a canbus interface.
+ * @param canInterface The name of the interface that is to be virtualized. Deualt Value: 'can0'.
+ * @param options Additional options for the function.
+ * @returns A promise to either 'virtualized' if the can has been virtualized or 'already_virtualized' if it was already virtualized.
+ */
 export async function virtualizeCan(canInterface: string = 'can0', options: Partial<VirtualizeCanOptions> = {}): Promise<VirtualizeCanResult> {
     const handledOptions: VirtualizeCanOptions = {...DEFAULT_OPTIONS, ...options};
     const logger = new Logger(handledOptions.silent, 'CAN');

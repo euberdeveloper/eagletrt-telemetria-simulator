@@ -4,13 +4,31 @@ import { exec } from 'shelljs';
 import { ChildProcess } from 'child_process';
 import { Logger } from '../../utils';
 
+/**
+ * The interface of the options for the simulateCan function.
+ */
 export interface SimulateCanOptions {
+    /**
+     * If true, the log will not be shown. Default: true.
+     */
     silent: boolean;
+    /**
+     * The name of the can interface where the data will be sent. Default: 'can0'.
+     */
     canInterface: string;
+    /**
+     * The number of times that the can log file will be sent over the can. Default: Infinity.
+     */
     iterations: number;
+    /**
+     * If the delta timestamps specified for each message in the can log file will be taken in consideration and simulated. Default: true.
+     */
     simulateTime: boolean;
 };
 
+/**
+ * The class of the can simulator instances, which are the processes that are created through the simulateCan function. They provide additional functionality compared to normal ChildProcess objects.
+ */
 export class CanSimulatorInstance {
 
     private logger: Logger;
@@ -19,16 +37,28 @@ export class CanSimulatorInstance {
     private _canInterface: string;
     private _finished: boolean;
 
+    /**
+     * The childprocess instance of the created process.
+     */
     public get childprocess(): ChildProcess {
         return this._childprocess;
     }
+    /**
+     * The name of the can interfaces where the messages are sent.
+     */
     public get canInterface(): string {
         return this._canInterface;
     }
+    /**
+     * If the process finished its job and was closed.
+     */
     public get finished(): boolean {
         return this._finished;
     }
 
+    /**
+     * Stops the process if it has not already finished.
+     */
     public async stop(): Promise<void> {
         return new Promise((resolve, reject) => {
             if (this.finished) {
@@ -55,6 +85,12 @@ export class CanSimulatorInstance {
         });
     }
 
+    /**
+     * The constructor of the CanSimulatorInstance. It is supposed to be used by the simulateCan function.
+     * @param childprocess The childprocess instance of the process.
+     * @param canInterface The name of the can interface.
+     * @param logger The logger instance.
+     */
     constructor (childprocess: ChildProcess, canInterface: string, logger: Logger) {
         this._childprocess = childprocess;
         this._canInterface = canInterface;
@@ -82,6 +118,11 @@ const DEFAULT_OPTIONS: SimulateCanOptions = {
     simulateTime: true
 };
 
+/**
+ * It simulates some data sent via a virtualized canbus interface. The data comes from a can log, that can be obtained through tools such as candump.
+ * @param src The path to the can log file containing the messages that will be sent over the virtualized canbus. The default value is a can log file already stored in this npm package. If some options are wanted to be specified, but also using the default src file, use null as this value.
+ * @param options Additional options for the function.
+ */
 export async function simulateCan(src: string | null = DEFAULT_SOURCE, options: Partial<SimulateCanOptions> = {}): Promise<CanSimulatorInstance> {
     return new Promise<CanSimulatorInstance>((resolve) => {
         const handledSrc = src ?? DEFAULT_SOURCE;
