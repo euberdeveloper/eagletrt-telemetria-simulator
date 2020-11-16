@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as treeKill from 'tree-kill';
-import { exec } from 'shelljs';
+import { exec, which } from 'shelljs';
 import { ChildProcess } from 'child_process';
 import { Logger } from '../../utils';
 
@@ -140,6 +140,12 @@ export async function simulateCan(src: string | null = DEFAULT_SOURCE, options: 
         const stringifiedCommandOptions = commandOptions.join(' ');
 
         logger.info('Starting canplayer');
+
+        if (!which('canplayer')) {
+            logger.error('Error: canplayer command not found. Try "apt install can-utils" to install it.');
+            throw new Error('modprobe command not found. Try "apt install can-utils" to install it.');
+        }
+
         const childProcess = exec(`canplayer ${stringifiedCommandOptions}`, { async: true, silent: handledOptions.silent });
         logger.debug('PID:', null, childProcess.pid);
         const canSimulatorInstance = new CanSimulatorInstance(childProcess, handledOptions.canInterface, logger);
