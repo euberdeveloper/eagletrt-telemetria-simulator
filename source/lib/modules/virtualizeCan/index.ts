@@ -1,3 +1,4 @@
+import { which } from 'shelljs';
 import { execAsync, Logger } from '../../utils';
 
 /**
@@ -43,13 +44,25 @@ export async function virtualizeCan(canInterface: string = 'can0', options: Part
     try {
         logger.info('Setting up CAN interface');
         logger.debug('Can interface: ', canInterface);
+
+        if (!which('modprobe')) {
+            logger.error('Error: modprobe command not found');
+            throw new Error('modprobe command not found');
+        }
+
+        if (!which('ip')) {
+            logger.error('Error: ip command not found');
+            throw new Error('ip command not found');
+        }
+
         await execAsync(`sudo modprobe vcan`, { silent: handledOptions.silent });
         await execAsync(`sudo ip link add dev ${canInterface} type vcan`, { silent: handledOptions.silent });
         await execAsync(`sudo ip link set up ${canInterface}`, { silent: handledOptions.silent });
+
         logger.success('CAN interface virtualized');
     }
     catch (error) {
-        if (error.code === 2 && error.stderr === 'RTNETLINK answers: File exists\n') {
+        if (error?.code === 2 && error?.stderr === 'RTNETLINK answers: File exists\n') {
             result = VirtualizeCanResult.ALREADY_VIRTUALIZED;
             logger.warning('CAN inteface already virtualized');
         }
