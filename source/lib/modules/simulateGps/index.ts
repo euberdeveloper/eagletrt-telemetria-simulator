@@ -113,7 +113,7 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         const handledOptions: SimulateGpsOptions = { ...DEFAULT_OPTIONS, ...options };
         const logger = new Logger(handledOptions.silent, 'GPS');
 
-        const commandOptions: string[] = [ handledSrc ];
+        const commandOptions: string[] = [ `-l ${handledSrc}` ];
         if (handledOptions.iterations) {
             const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
             commandOptions.push(`-n ${value}`);
