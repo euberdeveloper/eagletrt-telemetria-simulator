@@ -44,7 +44,7 @@ export class CanSimulatorInstance {
         return this._childprocess;
     }
     /**
-     * The name of the can interfaces where the messages are sent.
+     * The name of the can interface where the messages are sent.
      */
     public get canInterface(): string {
         return this._canInterface;
