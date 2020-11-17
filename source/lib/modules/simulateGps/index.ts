@@ -118,7 +118,7 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
             const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
             commandOptions.push(`-n ${value}`);
         }
-        if (!handledOptions.simulateTime) {
+        if (handledOptions.simulateTime) {
             commandOptions.push('-t');
         }
         const stringifiedCommandOptions = commandOptions.join(' ');
