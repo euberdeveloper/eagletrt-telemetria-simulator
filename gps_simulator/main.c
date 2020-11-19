@@ -32,7 +32,7 @@
 // |    21685 |      126 |        172 |    202    |   4.95E-3    |    4954   |
 // |    19489 |       96 |        203 |           |              |           |
 
-#define INTERVAL 128700 // [us] // between RMC messages, 1 each 26 packets
+#define STATIC_INTERVAL 128700 // [us] // between RMC messages, 1 each 26 packets
 
 void printMessage(char* message);
 void printError(char* message);
@@ -43,15 +43,18 @@ int getDelta(int* previousT, int* currentT, char* line);
 
 int main(int argc, char * const * argv)
 {
-
+    int startupDelay = 0;
     int ubxTime = 0;
     int ubxIterations = 1;
     char* ubxSource = NULL;
     char ubxIterationsBuff[101] = "1";
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "tn:l:")) != -1) {
+    while ((opt = getopt(argc, argv, "tn:l:d:")) != -1) {
         switch(opt) {
+            case 'd':
+                startupDelay = atoi(optarg);
+                break;
             case 't':
                 ubxTime = 1;
                 break;
@@ -72,7 +75,7 @@ int main(int argc, char * const * argv)
         exit(1);
     }
 
-    usleep(1000 * 1000);
+    usleep(100 * 1000); // standard wait just for fun
 
     int previousT = 0, currentT = 0, deltaT = 0;
     //get the master id
@@ -119,6 +122,18 @@ int main(int argc, char * const * argv)
     asprintf(&gpsInterfaceMessage, "GPS INTERFACE: %s", slavepath);
     printMessage(gpsInterfaceMessage);
     free(gpsInterfaceMessage);
+
+    char* startupDelayMessage;
+    asprintf(&startupDelayMessage, "WAITING: %d ms", startupDelay);
+    printMessage(startupDelayMessage);
+    free(startupDelayMessage);
+
+    usleep(startupDelay * 1000);
+
+    char* startupMessage;
+    asprintf(&startupMessage, "SENDING");
+    printMessage(startupMessage);
+    free(startupMessage);
     
     unsigned long time =  getUs(), delay = 0; // useful for timerize
 
@@ -144,9 +159,9 @@ int main(int argc, char * const * argv)
                     delay = getUs() - time; // estimates the delay between the last RMC and now
                     if (delay < 0) // check if the delay is negative or more than tolerable
                         delay = 0;
-                    else if (delay > INTERVAL/2)
-                        delay = INTERVAL/2;
-                    usleep(INTERVAL - delay); // tune sleep to be as trustful as possible to INTERVAL
+                    else if (delay > STATIC_INTERVAL/2)
+                        delay = STATIC_INTERVAL/2;
+                    usleep(STATIC_INTERVAL - delay); // tune sleep to be as trustful as possible to STATIC_INTERVAL
                     time = getUs(); // update the timestamp of the last RMC
                 }
             }
@@ -162,6 +177,10 @@ int main(int argc, char * const * argv)
     }
 
     return 0;
+}
+
+void fixTime(char *line) {
+
 }
 
 unsigned long getUs (void)
