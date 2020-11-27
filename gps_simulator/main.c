@@ -112,6 +112,9 @@ int main(int argc, char * const * argv)
     if (ubxTime) printMessage("UBX SIMULATING TIME");
     else printMessage("UBX NOT SIMULATING TIME");
 
+    if (keepAlive) printMessage("UBX KEEPING ALIVE");
+    else printMessage("UBX NOT KEEPING ALIVE");
+
     char* ubxSourceMessage;
     asprintf(&ubxSourceMessage, "UBX SOURCE: %s", ubxSource);
     printMessage(ubxSourceMessage);
