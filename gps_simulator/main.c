@@ -44,14 +44,18 @@ int getDelta(int* previousT, int* currentT, char* line);
 int main(int argc, char * const * argv)
 {
     int startupDelay = 0;
+    int keepAlive = 0;
     int ubxTime = 0;
     int ubxIterations = 1;
     char* ubxSource = NULL;
     char ubxIterationsBuff[101] = "1";
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "tn:l:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "ktn:l:d:")) != -1) {
         switch(opt) {
+            case 'k':
+                keepAlive = 1;
+                break;
             case 'd':
                 startupDelay = atoi(optarg);
                 break;
@@ -175,6 +179,8 @@ int main(int argc, char * const * argv)
 
         if (ubxIterations != INT_MAX) ubxIterations--;
     }
+
+    while (keepAlive);
 
     return 0;
 }

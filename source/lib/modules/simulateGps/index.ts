@@ -25,6 +25,10 @@ export interface SimulateGpsOptions {
      * How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface. Default: 0.
      */
     delay: number;
+    /**
+     * Keep the process alive after having sent all the simulated gps data. Default: false
+     */
+    keepalive: number;
 };
 
 /**
@@ -142,7 +146,8 @@ const DEFAULT_OPTIONS: SimulateGpsOptions = {
     silent: true,
     iterations: Infinity,
     simulateTime: true,
-    delay: 0
+    delay: 0,
+    keepalive: false
 };
 
 /**
@@ -167,6 +172,9 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         }
         if (handledOptions.simulateTime) {
             commandOptions.push('-t');
+        }
+        if (handledOptions.keepalive) {
+            commandOptions.push('-k');
         }
         const stringifiedCommandOptions = commandOptions.join(' ');
         const pathToGpsSimulator = path.join(__dirname, '..', '..', '..', '..', 'gps_simulator', 'gps_simulator.out');
