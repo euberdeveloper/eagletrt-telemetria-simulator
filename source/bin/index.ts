@@ -124,6 +124,12 @@ yargs
                                     describe: 'If the time of the gps log will be simulated',
                                     type: 'boolean'
                                 },
+                                'delay': {
+                                    alias: 'd',
+                                    default: 0,
+                                    describe: 'How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface',
+                                    type: 'number'
+                                },
                                 'iterations': {
                                     alias: 'n',
                                     default: Infinity,
@@ -139,7 +145,8 @@ yargs
                         const options: SimulateGpsOptions = {
                             silent: args.silent,
                             iterations: args.iterations,
-                            simulateTime: args.simulateTime
+                            simulateTime: args.simulateTime,
+                            delay: args.delay
                         };
                         await simulateGps(log, options);
                     }
@@ -192,6 +199,11 @@ yargs
                                     describe: 'If the time of the gps log will be simulated',
                                     type: 'boolean'
                                 },
+                                'gps-delay': {
+                                    default: 0,
+                                    describe: 'How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface',
+                                    type: 'number'
+                                },
                                 'gps-iterations': {
                                     default: Infinity,
                                     describe: 'The number of iterations in which the gps log file will be sent',
@@ -215,7 +227,8 @@ yargs
                         const gpsOptions: SimulateGpsOptions = {
                             silent: args.silent,
                             iterations: args.gpsIterations,
-                            simulateTime: args.gpsSimulateTime
+                            simulateTime: args.gpsSimulateTime,
+                            delay: args.gpsDelay
                         };
             
                         await Promise.all([
