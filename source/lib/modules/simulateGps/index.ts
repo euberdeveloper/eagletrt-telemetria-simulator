@@ -21,6 +21,10 @@ export interface SimulateGpsOptions {
      * If the messages in the gps ubx log file will be sent simulating the time. Default: true.
      */
     simulateTime: boolean;
+    /**
+     * How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface. Default: 0.
+     */
+    delay: number;
 };
 
 /**
@@ -137,7 +141,8 @@ const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sou
 const DEFAULT_OPTIONS: SimulateGpsOptions = {
     silent: true,
     iterations: Infinity,
-    simulateTime: true
+    simulateTime: true,
+    delay: 0
 };
 
 /**
@@ -152,6 +157,10 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         const logger = new Logger(handledOptions.silent, 'GPS');
 
         const commandOptions: string[] = [ `-l ${handledSrc}` ];
+        if (handledOptions.delay > 0) {
+            const value = handledOptions.delay;
+            commandOptions.push(`-d ${value}`); 
+        }
         if (handledOptions.iterations) {
             const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
             commandOptions.push(`-n ${value}`);
