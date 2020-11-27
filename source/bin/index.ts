@@ -136,6 +136,12 @@ yargs
                                     describe: 'The number of iterations in which the gps log file will be simulated',
                                     defaultDescription: 'If nothing is specified, the file is sent in an infinite loop',
                                     type: 'number'
+                                },
+                                'keep-alive': {
+                                    alias: 'k',
+                                    default: false,
+                                    describe: 'Keep the process alive after having sent all the simulated gps data',
+                                    type: 'boolean'
                                 }
                             });
                     },
@@ -146,7 +152,8 @@ yargs
                             silent: args.silent,
                             iterations: args.iterations,
                             simulateTime: args.simulateTime,
-                            delay: args.delay
+                            delay: args.delay,
+                            keepAlive: args.keepAlive
                         };
                         await simulateGps(log, options);
                     }
@@ -209,6 +216,11 @@ yargs
                                     describe: 'The number of iterations in which the gps log file will be sent',
                                     defaultDescription: 'If nothing is specified, the file is sent in an infinite loop',
                                     type: 'number'
+                                },
+                                'gps-keep-alive': {
+                                    default: false,
+                                    describe: 'Keep the gps process alive after having sent all the simulated gps data',
+                                    type: 'boolean'
                                 }
                             });
                     },
@@ -228,7 +240,8 @@ yargs
                             silent: args.silent,
                             iterations: args.gpsIterations,
                             simulateTime: args.gpsSimulateTime,
-                            delay: args.gpsDelay
+                            delay: args.gpsDelay,
+                            keepAlive: args.gpsKeepAlive
                         };
             
                         await Promise.all([

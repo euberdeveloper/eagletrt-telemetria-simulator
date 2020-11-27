@@ -28,7 +28,7 @@ export interface SimulateGpsOptions {
     /**
      * Keep the process alive after having sent all the simulated gps data. Default: false
      */
-    keepalive: number;
+    keepAlive: boolean;
 };
 
 /**
@@ -147,7 +147,7 @@ const DEFAULT_OPTIONS: SimulateGpsOptions = {
     iterations: Infinity,
     simulateTime: true,
     delay: 0,
-    keepalive: false
+    keepAlive: false
 };
 
 /**
@@ -173,7 +173,7 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         if (handledOptions.simulateTime) {
             commandOptions.push('-t');
         }
-        if (handledOptions.keepalive) {
+        if (handledOptions.keepAlive) {
             commandOptions.push('-k');
         }
         const stringifiedCommandOptions = commandOptions.join(' ');
