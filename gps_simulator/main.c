@@ -183,6 +183,8 @@ int main(int argc, char * const * argv)
         if (ubxIterations != INT_MAX) ubxIterations--;
     }
 
+    printMessage("GPS FINISHED");
+
     while (keepAlive);
 
     return 0;
