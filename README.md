@@ -47,3 +47,4 @@ The reason why the telemetry service need to start after the simulator is that t
 Also `plugged` and `simulated` ned to be set to 1.
 
 From now on eveything ~~can~~ should work as always from the telemetry side. 
+
