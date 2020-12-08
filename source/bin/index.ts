@@ -3,6 +3,7 @@ import * as yargs from 'yargs';
 import { virtualizeCan, VirtualizeCanOptions } from '../lib/modules/virtualizeCan';
 import { simulateCan, SimulateCanOptions } from '../lib/modules/simulateCan';
 import { simulateGps, SimulateGpsOptions } from '../lib/modules/simulateGps';
+import { setTelemetryConfigPath, updateTelemetryGpsPort } from './utils';
 
 yargs
     .scriptName('eagle')
@@ -14,7 +15,7 @@ yargs
                 .command(
                     'can',
                     'Creates a can interface',
-                    () => {},
+                    () => { },
                     async argv => {
                         const args: any = argv;
                         const canInterface = args.canInterface;
@@ -142,11 +143,20 @@ yargs
                                     default: false,
                                     describe: 'Keep the process alive after having sent all the simulated gps data',
                                     type: 'boolean'
+                                },
+                                'update-config': {
+                                    alias: 'u',
+                                    default: true,
+                                    describe: 'Updates the gps port on the config file of the telemetry to the same value of the opened gps interface. The config file is the one specified with the settings command.',
+                                    type: 'boolean'
                                 }
                             });
                     },
                     async argv => {
                         const args: any = argv;
+
+                        const updateConfig = args.updateConfig;
+
                         const log = args.log;
                         const options: SimulateGpsOptions = {
                             silent: args.silent,
@@ -155,7 +165,13 @@ yargs
                             delay: args.delay,
                             keepAlive: args.keepAlive
                         };
-                        await simulateGps(log, options);
+                        
+                        const gpsInstance = await simulateGps(log, options);
+
+                        if (updateConfig) {
+                            const gpsInterface = await gpsInstance.getGpsInterface();
+                            updateTelemetryGpsPort(gpsInterface);
+                        }
                     }
                 )
                 .command(
@@ -221,15 +237,22 @@ yargs
                                     default: false,
                                     describe: 'Keep the gps process alive after having sent all the simulated gps data',
                                     type: 'boolean'
+                                },
+                                'gps-update-config': {
+                                    default: true,
+                                    describe: 'Updates the gps port on the config file of the telemetry to the same value of the opened gps interface. The config file is the one specified with the settings command.',
+                                    type: 'boolean'
                                 }
                             });
                     },
                     async argv => {
                         const args: any = argv;
 
+                        const gpsUpdateConfig = args.gpsUpdateConfig;
+
                         const canLog = args.canLog;
                         const gpsLog = args.gpsLog;
-            
+
                         const canOptions: SimulateCanOptions = {
                             canInterface: args.canInterface,
                             silent: args.silent,
@@ -243,15 +266,42 @@ yargs
                             delay: args.gpsDelay,
                             keepAlive: args.gpsKeepAlive
                         };
-            
-                        await Promise.all([
+
+                        const [, gpsInstance] = await Promise.all([
                             simulateCan(canLog, canOptions),
                             simulateGps(gpsLog, gpsOptions)
                         ]);
+
+                        if (gpsUpdateConfig) {
+                            const gpsInterface = await gpsInstance.getGpsInterface();
+                            updateTelemetryGpsPort(gpsInterface);
+                        }
                     }
                 )
                 .demandCommand(1, 'You must use "can", "gps" or "all" command')
                 .argv;
+        }
+    )
+    .command(
+        'settings',
+        'Change the settings of the module',
+        yargs => {
+            yargs
+                .options({
+                    'telemetry-config-path': {
+                        alias: 't',
+                        demandOption: true,
+                        describe: 'The path to the telemetry config file. It will be updated automatically when calling the gps simulator with the option --update-config set to true. Use "null" to set it to null.',
+                        type: 'string'
+                    }
+                })
+                .argv
+        },
+        argv => {
+            const args: any = argv;
+
+            const telemetryConfigPath = args.telemetryConfigPath === "null" ? null : args.telemetryConfigPath;
+            setTelemetryConfigPath(telemetryConfigPath);
         }
     )
     .demandCommand(1, 'You must use either virtualize of simulate command')
