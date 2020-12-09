@@ -37,7 +37,8 @@ export interface SimulateGpsOptions {
 export class GpsSimulatorInstance {
 
     private logger: Logger;
-    private canInterfaceEmitter: EventEmitter;
+    private gpsInterfaceEmitter: EventEmitter;
+    private simulatorFinishedEmitter: EventEmitter;
 
     private _childprocess: ChildProcess;
     private _gpsInterface: string | null;
@@ -71,8 +72,8 @@ export class GpsSimulatorInstance {
                 resolve(this.gpsInterface);
             }
             else {
-                this.canInterfaceEmitter
-                    .addListener('canInterface', gpsInterface => resolve(gpsInterface));
+                this.gpsInterfaceEmitter
+                    .addListener('gpsInterface', gpsInterface => resolve(gpsInterface));
             }
         });
     }
@@ -81,29 +82,41 @@ export class GpsSimulatorInstance {
      * Stops the process if it has not already finished.
      */
     public async stop(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             if (this.finished) {
                 resolve();
             }
             else {
-                this.childprocess.removeAllListeners();
-                this.childprocess.on('exit', (code, signal) => {
-                    if (signal === 'SIGTERM') {
-                        this.logger.success('Gps player closed');
-                        resolve();
-                    }
-                    else {
-                        this.logger.error('Gps player exited');
-                        reject({ code, signal });
-                    }
-                    this._finished = true;
-                });
-                this.childprocess.on('error', (code, signal) => {
-                    reject({ code, signal });
-                });
                 treeKill(this.childprocess.pid);
+                this.simulatorFinishedEmitter
+                    .addListener('simulatorFinished', () => resolve());
             }
         });
+    }
+
+    /**
+     * Waits until the gps simulator has finished or an optional-specified timeout has expired.
+     * @param timeout The number of milliseconds before stopping to wait if the simulator has not stopped yet. Default: null.
+     * @returns A promise to a boolean which is true if the simulator has finished and false otherwise.
+     */
+    public async waitUntilFinished(timeout: number | null = null): Promise<boolean> {
+        const finishedPromise = new Promise<boolean>(resolve => {
+            if (this.finished) {
+                resolve(true);
+            }
+            else {
+                this.simulatorFinishedEmitter
+                    .addListener('simulatorFinished', () => resolve(true));
+            }
+        });
+
+        const timeoutPromise = new Promise<boolean>(resolve => {
+            if (typeof timeout === 'number') {
+                setTimeout(() => resolve(false), timeout);
+            }
+        });
+
+        return Promise.race([finishedPromise, timeoutPromise]);
     }
 
     /**
@@ -116,26 +129,31 @@ export class GpsSimulatorInstance {
         this.logger = logger;
         this._finished = false;
 
-        this.canInterfaceEmitter = new EventEmitter();
+        this.gpsInterfaceEmitter = new EventEmitter();
         this.childprocess.stdout?.setEncoding('utf8');
         this.childprocess.stdout?.on('data', (data: Buffer) => {
             const lines = data.toString().split('\n');
             for (const line of lines) {
                 if (line.includes('{MESSAGE}') && line.includes('GPS INTERFACE')) {
                     this._gpsInterface = line.split('GPS INTERFACE: ')[1];
-                    this.canInterfaceEmitter.emit('canInterface', this._gpsInterface);
+                    this.gpsInterfaceEmitter.emit('gpsInterface', this._gpsInterface);
                 }
             }
         });
 
-        this.childprocess.on('exit', code => {
-            if (code === 0) {
-                logger.success('Gps player finished');
+        this.simulatorFinishedEmitter = new EventEmitter();
+        this.childprocess.on('exit', (code, signal) => {
+            if (signal === 'SIGTERM') {
+                this.logger.success('Gps simulator closed');
+            }
+            else if (code === 0) {
+                logger.success('Gps simulator finished');
             }
             else {
-                logger.error(`Gps player finished with error code ${code}`);
+                logger.error(`Gps simulator finished with error code ${code}`);
             }
             this._finished = true;
+            this.simulatorFinishedEmitter.emit('simulatorFinished');
         });
     }
 

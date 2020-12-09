@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as treeKill from 'tree-kill';
 import { exec, which } from 'shelljs';
+import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
 import { Logger } from '../../utils';
 
@@ -32,6 +33,7 @@ export interface SimulateCanOptions {
 export class CanSimulatorInstance {
 
     private logger: Logger;
+    private simulatorFinishedEmitter: EventEmitter;
 
     private _childprocess: ChildProcess;
     private _canInterface: string;
@@ -60,29 +62,41 @@ export class CanSimulatorInstance {
      * Stops the process if it has not already finished.
      */
     public async stop(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             if (this.finished) {
                 resolve();
             }
             else {
-                this.childprocess.removeAllListeners();
-                this.childprocess.on('exit', (code, signal) => {
-                    if (signal === 'SIGTERM') {
-                        this.logger.success('Can player closed');
-                        resolve();
-                    }
-                    else {
-                        this.logger.error('Can player exited');
-                        reject({code, signal});
-                    }
-                    this._finished = true;
-                });
-                this.childprocess.on('error', (code, signal) => {
-                    reject({code, signal});
-                });
                 treeKill(this.childprocess.pid);
+                this.simulatorFinishedEmitter
+                    .addListener('simulatorFinished', () => resolve());
             }
         });
+    }
+
+    /**
+     * Waits until the can simulator has finished or an optional-specified timeout has expired.
+     * @param timeout The number of milliseconds before stopping to wait if the simulator has not stopped yet. Default: null.
+     * @returns A promise to a boolean which is true if the simulator has finished and false otherwise.
+     */
+    public async waitUntilFinished(timeout: number | null = null): Promise<boolean> {
+        const finishedPromise = new Promise<boolean>(resolve => {
+            if (this.finished) {
+                resolve(true);
+            }
+            else {
+                this.simulatorFinishedEmitter
+                    .addListener('simulatorFinished', () => resolve(true));
+            }
+        });
+
+        const timeoutPromise = new Promise<boolean>(resolve => {
+            if (typeof timeout === 'number') {
+                setTimeout(() => resolve(false), timeout);
+            }
+        });
+
+        return Promise.race([finishedPromise, timeoutPromise]);
     }
 
     /**
@@ -97,14 +111,20 @@ export class CanSimulatorInstance {
         this.logger = logger;
         this._finished = false;
 
-        this.childprocess.on('exit', code => {
-            if (code === 0) {
-                logger.success('Can player finished');
+        this.simulatorFinishedEmitter = new EventEmitter();
+
+        this.childprocess.on('exit', (code, signal) => {
+            if (signal === 'SIGTERM') {
+                this.logger.success('Can simulator closed');
+            }
+            else if (code === 0) {
+                this.logger.success('Can simulator finished');
             }
             else {
-                logger.error(`Can player finished with error code ${code}`);
+                this.logger.error(`Can simulator finished with error code ${code}`);
             }
             this._finished = true;
+            this.simulatorFinishedEmitter.emit('simulatorFinished');
         });
     }
 
