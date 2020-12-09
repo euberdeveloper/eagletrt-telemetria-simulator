@@ -222,9 +222,10 @@ yargs
                                     describe: 'If the time of the gps log will be simulated',
                                     type: 'boolean'
                                 },
-                                'gps-delay': {
+                                'delay': {
+                                    alias: 'd',
                                     default: 0,
-                                    describe: 'How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface',
+                                    describe: 'How many milliseconds will the gps simulator wait after opening the gps pseudoterminal port interface and before sending the messages over that interface. Also the can will wait the same number of milliseconds before starting.',
                                     type: 'number'
                                 },
                                 'gps-iterations': {
@@ -263,12 +264,15 @@ yargs
                             silent: args.silent,
                             iterations: args.gpsIterations,
                             simulateTime: args.gpsSimulateTime,
-                            delay: args.gpsDelay,
+                            delay: args.delay,
                             keepAlive: args.gpsKeepAlive
                         };
 
                         const [, gpsInstance] = await Promise.all([
-                            simulateCan(canLog, canOptions),
+                            new Promise(resolve => setTimeout(async () => 
+                                resolve(await simulateCan(canLog, canOptions)), 
+                                args.delay
+                            )),
                             simulateGps(gpsLog, gpsOptions)
                         ]);
 
