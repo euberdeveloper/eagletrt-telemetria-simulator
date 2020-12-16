@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include "./gps_service/gps_service.h"
 #include <limits.h>
+#include <locale.h>
 
 // Let this shit to use asprintf
 #ifndef _GNU_SOURCE
@@ -38,14 +39,18 @@ void printMessage(char* message);
 void printError(char* message);
 
 unsigned long getUs(void);
+unsigned long getUsFromTimestamp(char *line);
 int getMsFromMessage(char *line);
 int getDelta(int* previousT, int* currentT, char* line);
 
 int main(int argc, char * const * argv)
 {
+    //setlocale (LC_NUMERIC, "C");
+
     int startupDelay = 0;
     int keepAlive = 0;
     int ubxTime = 0;
+    int ubxTimestamp = 0; //0 undefined, 1 yes, 2 no
     int ubxIterations = 1;
     char* ubxSource = NULL;
     char ubxIterationsBuff[101] = "1";
@@ -148,6 +153,12 @@ int main(int argc, char * const * argv)
         char* line = NULL;
         size_t len = 0;
 
+        char timestampStr[101] = "\0";
+        unsigned long timestamp = 0;
+        unsigned long lastTimestamp = 0;
+        int i = 0;
+        int j = 0;
+
         FILE* fp;
         fp = fopen(ubxSource, "r");
         
@@ -162,15 +173,50 @@ int main(int argc, char * const * argv)
         {
             t = getline(&line, &len, fp);
             if (ubxTime) {
-                if (strstr(line,"RMC")) { // RMC has a timestamp and starts a 26 msg.s block, then ended by GLL 
-                    delay = getUs() - time; // estimates the delay between the last RMC and now
-                    if (delay < 0) // check if the delay is negative or more than tolerable
-                        delay = 0;
-                    else if (delay > STATIC_INTERVAL/2)
-                        delay = STATIC_INTERVAL/2;
-                    usleep(STATIC_INTERVAL - delay); // tune sleep to be as trustful as possible to STATIC_INTERVAL
-                    time = getUs(); // update the timestamp of the last RMC
+                if (ubxTimestamp == 0) {
+                    if (line[0] == '$') {
+                        printMessage("TIMESTAMP NOT FOUND, approximating");
+                        ubxTimestamp = 2;
+                    } else { 
+                        printMessage("TIMESTAMP FOUND");
+                        ubxTimestamp = 1;
+                    }
                 }
+                if (ubxTimestamp == 2) {
+                    if (strstr(line,"RMC")) { // RMC has a timestamp and starts a 26 msg.s block, then ended by GLL 
+                        delay = getUs() - time; // estimates the delay between the last RMC and now
+                        if (delay < 0) // check if the delay is negative or more than tolerable
+                            delay = 0;
+                        else if (delay > STATIC_INTERVAL/2)
+                            delay = STATIC_INTERVAL/2;
+                        usleep(STATIC_INTERVAL - delay); // tune sleep to be as trustful as possible to STATIC_INTERVAL
+                        time = getUs(); // update the timestamp of the last RMC
+                    }
+                } else {
+                    j = 0;
+                    while(line[0] != '\0') {
+                        if (line[0] == '$') {
+                            timestampStr[j] = '\0';
+                            break;
+                        } else {
+                            if (line[0] >= '0' && line[0] <= '9' || line[0] == '.') {
+                                timestampStr[j] = line[0];
+                                j++;
+                            }
+                            for(i = 0; i < strlen(line); i++) {
+                                line[i]=line[i+1];
+                            }
+                        }
+                    }
+                    timestamp = getUsFromTimestamp(timestampStr);
+                    if (lastTimestamp == 0) lastTimestamp = timestamp;
+                    usleep(timestamp-lastTimestamp);
+                    lastTimestamp = timestamp;
+                }
+            }
+            if (line[strlen(line)-1] != '\n') {
+                line[strlen(line)-1] = '\n';
+                line[strlen(line)] = '\0';
             }
             int written_bytes = write(gps_port,line,t);
             line = NULL;
@@ -185,6 +231,7 @@ int main(int argc, char * const * argv)
 
     printMessage("GPS FINISHED");
 
+    if (keepAlive) printMessage("KEEPING PROCESS ALIVE");
     while (keepAlive);
 
     return 0;
@@ -204,6 +251,12 @@ unsigned long getUs (void)
     return result;
 }
 
+unsigned long getUsFromTimestamp(char* line) {
+    double raw = 0;
+    raw = atof((const char*)line);
+    unsigned long result = raw * 1e+3;
+    return result;
+}
 
 int getMsFromMessage(char *line) {
     double raw = 0;
