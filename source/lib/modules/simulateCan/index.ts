@@ -39,6 +39,33 @@ export class CanSimulatorInstance {
     private _finished: boolean;
 
     /**
+     * The constructor of the CanSimulatorInstance. It is supposed to be used by the simulateCan function.
+     * @param childprocess The childprocess instance of the process.
+     * @param canInterface The name of the can interface.
+     * @param logger The logger instance.
+     */
+    public constructor(childprocess: ChildProcess, canInterface: string, logger: Logger) {
+        this._childprocess = childprocess;
+        this._canInterface = canInterface;
+        this.logger = logger;
+        this._finished = false;
+
+        this.simulatorFinishedEmitter = new EventEmitter();
+
+        this.childprocess.on('exit', (code, signal) => {
+            if (signal === 'SIGTERM') {
+                this.logger.success('Can simulator closed');
+            } else if (code === 0) {
+                this.logger.success('Can simulator finished');
+            } else {
+                this.logger.error(`Can simulator finished with error code ${code}`);
+            }
+            this._finished = true;
+            this.simulatorFinishedEmitter.emit('simulatorFinished');
+        });
+    }
+
+    /**
      * The childprocess instance of the created process.
      */
     public get childprocess(): ChildProcess {
@@ -92,33 +119,6 @@ export class CanSimulatorInstance {
         });
 
         return Promise.race([finishedPromise, timeoutPromise]);
-    }
-
-    /**
-     * The constructor of the CanSimulatorInstance. It is supposed to be used by the simulateCan function.
-     * @param childprocess The childprocess instance of the process.
-     * @param canInterface The name of the can interface.
-     * @param logger The logger instance.
-     */
-    constructor(childprocess: ChildProcess, canInterface: string, logger: Logger) {
-        this._childprocess = childprocess;
-        this._canInterface = canInterface;
-        this.logger = logger;
-        this._finished = false;
-
-        this.simulatorFinishedEmitter = new EventEmitter();
-
-        this.childprocess.on('exit', (code, signal) => {
-            if (signal === 'SIGTERM') {
-                this.logger.success('Can simulator closed');
-            } else if (code === 0) {
-                this.logger.success('Can simulator finished');
-            } else {
-                this.logger.error(`Can simulator finished with error code ${code}`);
-            }
-            this._finished = true;
-            this.simulatorFinishedEmitter.emit('simulatorFinished');
-        });
     }
 }
 

@@ -63,6 +63,42 @@ export class GpsSimulatorInstance {
     }
 
     /**
+     * The constructor of the GpsSimulatorInstance. It is supposed to be used by the simulateGps function.
+     * @param childprocess The childprocess instance of the process.
+     * @param logger The logger instance.
+     */
+    public constructor(childprocess: ChildProcess, logger: Logger) {
+        this._childprocess = childprocess;
+        this.logger = logger;
+        this._finished = false;
+
+        this.gpsInterfaceEmitter = new EventEmitter();
+        this.childprocess.stdout?.setEncoding('utf8');
+        this.childprocess.stdout?.on('data', (data: Buffer) => {
+            const lines = data.toString().split('\n');
+            for (const line of lines) {
+                if (line.includes('{MESSAGE}') && line.includes('GPS INTERFACE')) {
+                    this._gpsInterface = line.split('GPS INTERFACE: ')[1];
+                    this.gpsInterfaceEmitter.emit('gpsInterface', this._gpsInterface);
+                }
+            }
+        });
+
+        this.simulatorFinishedEmitter = new EventEmitter();
+        this.childprocess.on('exit', (code, signal) => {
+            if (signal === 'SIGTERM') {
+                this.logger.success('Gps simulator closed');
+            } else if (code === 0) {
+                logger.success('Gps simulator finished');
+            } else {
+                logger.error(`Gps simulator finished with error code ${code}`);
+            }
+            this._finished = true;
+            this.simulatorFinishedEmitter.emit('simulatorFinished');
+        });
+    }
+
+    /**
      * Returns the gps interface if it is already defined, or waits for the gps simulator output to print it and returns it after detecting that output.
      */
     public async getGpsInterface(): Promise<string> {
@@ -110,42 +146,6 @@ export class GpsSimulatorInstance {
         });
 
         return Promise.race([finishedPromise, timeoutPromise]);
-    }
-
-    /**
-     * The constructor of the GpsSimulatorInstance. It is supposed to be used by the simulateGps function.
-     * @param childprocess The childprocess instance of the process.
-     * @param logger The logger instance.
-     */
-    constructor(childprocess: ChildProcess, logger: Logger) {
-        this._childprocess = childprocess;
-        this.logger = logger;
-        this._finished = false;
-
-        this.gpsInterfaceEmitter = new EventEmitter();
-        this.childprocess.stdout?.setEncoding('utf8');
-        this.childprocess.stdout?.on('data', (data: Buffer) => {
-            const lines = data.toString().split('\n');
-            for (const line of lines) {
-                if (line.includes('{MESSAGE}') && line.includes('GPS INTERFACE')) {
-                    this._gpsInterface = line.split('GPS INTERFACE: ')[1];
-                    this.gpsInterfaceEmitter.emit('gpsInterface', this._gpsInterface);
-                }
-            }
-        });
-
-        this.simulatorFinishedEmitter = new EventEmitter();
-        this.childprocess.on('exit', (code, signal) => {
-            if (signal === 'SIGTERM') {
-                this.logger.success('Gps simulator closed');
-            } else if (code === 0) {
-                logger.success('Gps simulator finished');
-            } else {
-                logger.error(`Gps simulator finished with error code ${code}`);
-            }
-            this._finished = true;
-            this.simulatorFinishedEmitter.emit('simulatorFinished');
-        });
     }
 }
 
