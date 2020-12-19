@@ -1,8 +1,13 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+import 'module-alias/register';
 import * as yargs from 'yargs';
-import { virtualizeCan, VirtualizeCanOptions } from '../lib/modules/virtualizeCan';
-import { simulateCan, SimulateCanOptions } from '../lib/modules/simulateCan';
-import { simulateGps, SimulateGpsOptions } from '../lib/modules/simulateGps';
+
+import { virtualizeCan, VirtualizeCanOptions } from '@lib/modules/virtualizeCan';
+import { simulateCan, SimulateCanOptions } from '@lib/modules/simulateCan';
+import { simulateGps, SimulateGpsOptions } from '@lib/modules/simulateGps';
+
 import { setTelemetryConfigPath, updateTelemetryGpsPort } from './utils';
 
 yargs

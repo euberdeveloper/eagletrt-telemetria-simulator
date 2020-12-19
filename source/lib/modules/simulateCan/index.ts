@@ -3,7 +3,7 @@ import * as treeKill from 'tree-kill';
 import { exec, which } from 'shelljs';
 import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
-import { Logger } from '../../utils';
+import { Logger } from '@lib/utils';
 
 /**
  * The interface of the options for the simulateCan function.
@@ -25,18 +25,17 @@ export interface SimulateCanOptions {
      * If the delta timestamps specified for each message in the can log file will be taken in consideration and simulated. Default: true.
      */
     simulateTime: boolean;
-};
+}
 
 /**
  * The class of the can simulator instances, which are the processes that are created through the simulateCan function. They provide additional functionality compared to normal ChildProcess objects.
  */
 export class CanSimulatorInstance {
+    private readonly logger: Logger;
+    private readonly simulatorFinishedEmitter: EventEmitter;
 
-    private logger: Logger;
-    private simulatorFinishedEmitter: EventEmitter;
-
-    private _childprocess: ChildProcess;
-    private _canInterface: string;
+    private readonly _childprocess: ChildProcess;
+    private readonly _canInterface: string;
     private _finished: boolean;
 
     /**
@@ -65,11 +64,9 @@ export class CanSimulatorInstance {
         return new Promise(resolve => {
             if (this.finished) {
                 resolve();
-            }
-            else {
+            } else {
                 treeKill(this.childprocess.pid);
-                this.simulatorFinishedEmitter
-                    .addListener('simulatorFinished', () => resolve());
+                this.simulatorFinishedEmitter.addListener('simulatorFinished', () => resolve());
             }
         });
     }
@@ -83,10 +80,8 @@ export class CanSimulatorInstance {
         const finishedPromise = new Promise<boolean>(resolve => {
             if (this.finished) {
                 resolve(true);
-            }
-            else {
-                this.simulatorFinishedEmitter
-                    .addListener('simulatorFinished', () => resolve(true));
+            } else {
+                this.simulatorFinishedEmitter.addListener('simulatorFinished', () => resolve(true));
             }
         });
 
@@ -105,7 +100,7 @@ export class CanSimulatorInstance {
      * @param canInterface The name of the can interface.
      * @param logger The logger instance.
      */
-    constructor (childprocess: ChildProcess, canInterface: string, logger: Logger) {
+    constructor(childprocess: ChildProcess, canInterface: string, logger: Logger) {
         this._childprocess = childprocess;
         this._canInterface = canInterface;
         this.logger = logger;
@@ -116,18 +111,15 @@ export class CanSimulatorInstance {
         this.childprocess.on('exit', (code, signal) => {
             if (signal === 'SIGTERM') {
                 this.logger.success('Can simulator closed');
-            }
-            else if (code === 0) {
+            } else if (code === 0) {
                 this.logger.success('Can simulator finished');
-            }
-            else {
+            } else {
                 this.logger.error(`Can simulator finished with error code ${code}`);
             }
             this._finished = true;
             this.simulatorFinishedEmitter.emit('simulatorFinished');
         });
     }
-
 }
 
 const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.can.log');
@@ -143,10 +135,13 @@ const DEFAULT_OPTIONS: SimulateCanOptions = {
  * @param src The path to the can log file containing the messages that will be sent over the virtualized canbus. The default value is a can log file already stored in this npm package. If some options are wanted to be specified, but also using the default src file, use null as this value.
  * @param options Additional options for the function.
  */
-export async function simulateCan(src: string | null = DEFAULT_SOURCE, options: Partial<SimulateCanOptions> = {}): Promise<CanSimulatorInstance> {
-    return new Promise<CanSimulatorInstance>((resolve) => {
+export async function simulateCan(
+    src: string | null = DEFAULT_SOURCE,
+    options: Partial<SimulateCanOptions> = {}
+): Promise<CanSimulatorInstance> {
+    return new Promise<CanSimulatorInstance>(resolve => {
         const handledSrc = src ?? DEFAULT_SOURCE;
-        const handledOptions: SimulateCanOptions = {...DEFAULT_OPTIONS, ...options};
+        const handledOptions: SimulateCanOptions = { ...DEFAULT_OPTIONS, ...options };
         const logger = new Logger(handledOptions.silent, 'CAN');
 
         const commandOptions: string[] = [`-I ${handledSrc}`];
@@ -166,10 +161,12 @@ export async function simulateCan(src: string | null = DEFAULT_SOURCE, options: 
             throw new Error('modprobe command not found. Try "apt install can-utils" to install it.');
         }
 
-        const childProcess = exec(`canplayer ${stringifiedCommandOptions}`, { async: true, silent: handledOptions.silent });
+        const childProcess = exec(`canplayer ${stringifiedCommandOptions}`, {
+            async: true,
+            silent: handledOptions.silent
+        });
         logger.debug('PID:', null, childProcess.pid);
         const canSimulatorInstance = new CanSimulatorInstance(childProcess, handledOptions.canInterface, logger);
         resolve(canSimulatorInstance);
     });
 }
-

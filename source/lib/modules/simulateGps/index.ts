@@ -3,7 +3,7 @@ import * as treeKill from 'tree-kill';
 import { exec } from 'shelljs';
 import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
-import { Logger } from '../../utils';
+import { Logger } from '@lib/utils';
 
 /**
  * The interface of the options for the simulateGps function.
@@ -29,18 +29,17 @@ export interface SimulateGpsOptions {
      * Keep the process alive after having sent all the simulated gps data. Default: false
      */
     keepAlive: boolean;
-};
+}
 
 /**
  * The class of the gps simulator instances, which are the processes that are created through the simulateGps function. They provide additional functionality compared to normal ChildProcess objects.
  */
 export class GpsSimulatorInstance {
+    private readonly logger: Logger;
+    private readonly gpsInterfaceEmitter: EventEmitter;
+    private readonly simulatorFinishedEmitter: EventEmitter;
 
-    private logger: Logger;
-    private gpsInterfaceEmitter: EventEmitter;
-    private simulatorFinishedEmitter: EventEmitter;
-
-    private _childprocess: ChildProcess;
+    private readonly _childprocess: ChildProcess;
     private _gpsInterface: string | null;
     private _finished: boolean;
 
@@ -67,13 +66,11 @@ export class GpsSimulatorInstance {
      * Returns the gps interface if it is already defined, or waits for the gps simulator output to print it and returns it after detecting that output.
      */
     public async getGpsInterface(): Promise<string> {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             if (this.gpsInterface) {
                 resolve(this.gpsInterface);
-            }
-            else {
-                this.gpsInterfaceEmitter
-                    .addListener('gpsInterface', gpsInterface => resolve(gpsInterface));
+            } else {
+                this.gpsInterfaceEmitter.addListener('gpsInterface', gpsInterface => resolve(gpsInterface));
             }
         });
     }
@@ -85,11 +82,9 @@ export class GpsSimulatorInstance {
         return new Promise(resolve => {
             if (this.finished) {
                 resolve();
-            }
-            else {
+            } else {
                 treeKill(this.childprocess.pid);
-                this.simulatorFinishedEmitter
-                    .addListener('simulatorFinished', () => resolve());
+                this.simulatorFinishedEmitter.addListener('simulatorFinished', () => resolve());
             }
         });
     }
@@ -103,10 +98,8 @@ export class GpsSimulatorInstance {
         const finishedPromise = new Promise<boolean>(resolve => {
             if (this.finished) {
                 resolve(true);
-            }
-            else {
-                this.simulatorFinishedEmitter
-                    .addListener('simulatorFinished', () => resolve(true));
+            } else {
+                this.simulatorFinishedEmitter.addListener('simulatorFinished', () => resolve(true));
             }
         });
 
@@ -145,18 +138,15 @@ export class GpsSimulatorInstance {
         this.childprocess.on('exit', (code, signal) => {
             if (signal === 'SIGTERM') {
                 this.logger.success('Gps simulator closed');
-            }
-            else if (code === 0) {
+            } else if (code === 0) {
                 logger.success('Gps simulator finished');
-            }
-            else {
+            } else {
                 logger.error(`Gps simulator finished with error code ${code}`);
             }
             this._finished = true;
             this.simulatorFinishedEmitter.emit('simulatorFinished');
         });
     }
-
 }
 
 const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.gps.ubx');
@@ -173,16 +163,19 @@ const DEFAULT_OPTIONS: SimulateGpsOptions = {
  * @param src The path to the gps log file containing the messages that will be sent over the virtualized serial port. The default value is a gps log file already stored in this npm package. If some options are wanted to be specified, but also using the default src file, use null as this value.
  * @param options Additional options for the function.
  */
-export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: Partial<SimulateGpsOptions> = {}): Promise<GpsSimulatorInstance> {
-    return new Promise<GpsSimulatorInstance>((resolve) => {
+export async function simulateGps(
+    src: string | null = DEFAULT_SOURCE,
+    options: Partial<SimulateGpsOptions> = {}
+): Promise<GpsSimulatorInstance> {
+    return new Promise<GpsSimulatorInstance>(resolve => {
         const handledSrc = src ?? DEFAULT_SOURCE;
         const handledOptions: SimulateGpsOptions = { ...DEFAULT_OPTIONS, ...options };
         const logger = new Logger(handledOptions.silent, 'GPS');
 
-        const commandOptions: string[] = [ `-l ${handledSrc}` ];
+        const commandOptions: string[] = [`-l ${handledSrc}`];
         if (handledOptions.delay > 0) {
             const value = handledOptions.delay;
-            commandOptions.push(`-d ${value}`); 
+            commandOptions.push(`-d ${value}`);
         }
         if (handledOptions.iterations) {
             const value = handledOptions.iterations === Infinity ? 'i' : `${handledOptions.iterations}`;
@@ -198,10 +191,12 @@ export async function simulateGps(src: string | null = DEFAULT_SOURCE, options: 
         const pathToGpsSimulator = path.join(__dirname, '..', '..', '..', '..', 'gps_simulator', 'gps_simulator.out');
 
         logger.info('Starting gps simulator');
-        const childProcess = exec(`${pathToGpsSimulator} ${stringifiedCommandOptions}`, { async: true, silent: handledOptions.silent });
+        const childProcess = exec(`${pathToGpsSimulator} ${stringifiedCommandOptions}`, {
+            async: true,
+            silent: handledOptions.silent
+        });
         logger.debug('PID:', null, childProcess.pid);
         const gpsSimulatorInstance = new GpsSimulatorInstance(childProcess, logger);
         resolve(gpsSimulatorInstance);
     });
 }
-

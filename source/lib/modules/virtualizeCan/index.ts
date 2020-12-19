@@ -1,5 +1,5 @@
 import { which } from 'shelljs';
-import { execAsync, Logger } from '../../utils';
+import { execAsync, Logger } from '@lib/utils';
 
 /**
  * The interface of the options for the virtualizeCan function.
@@ -9,9 +9,9 @@ export interface VirtualizeCanOptions {
      * If true, the log will not be shown. Default: true.
      */
     silent: boolean;
-};
+}
 
-const DEFAULT_OPTIONS: VirtualizeCanOptions =  {
+const DEFAULT_OPTIONS: VirtualizeCanOptions = {
     silent: true
 };
 
@@ -27,7 +27,7 @@ export enum VirtualizeCanResult {
      * Returned when the can interface was already virtualized, so nothing has been done.
      */
     ALREADY_VIRTUALIZED = 'already_virtualized'
-};
+}
 
 /**
  * It virtualizes a canbus interface.
@@ -35,12 +35,15 @@ export enum VirtualizeCanResult {
  * @param options Additional options for the function.
  * @returns A promise to either 'virtualized' if the can has been virtualized or 'already_virtualized' if it was already virtualized.
  */
-export async function virtualizeCan(canInterface: string = 'can0', options: Partial<VirtualizeCanOptions> = {}): Promise<VirtualizeCanResult> {
-    const handledOptions: VirtualizeCanOptions = {...DEFAULT_OPTIONS, ...options};
+export async function virtualizeCan(
+    canInterface = 'can0',
+    options: Partial<VirtualizeCanOptions> = {}
+): Promise<VirtualizeCanResult> {
+    const handledOptions: VirtualizeCanOptions = { ...DEFAULT_OPTIONS, ...options };
     const logger = new Logger(handledOptions.silent, 'CAN');
 
     let result: VirtualizeCanResult = VirtualizeCanResult.VIRTUALIZED;
-    
+
     try {
         logger.info('Setting up CAN interface');
         logger.debug('Can interface: ', canInterface);
@@ -60,13 +63,12 @@ export async function virtualizeCan(canInterface: string = 'can0', options: Part
         await execAsync(`sudo ip link set up ${canInterface}`, { silent: handledOptions.silent });
 
         logger.success('CAN interface virtualized');
-    }
-    catch (error) {
+    } catch (error) {
         if (error?.code === 2 && error?.stderr === 'RTNETLINK answers: File exists\n') {
             result = VirtualizeCanResult.ALREADY_VIRTUALIZED;
             logger.warning('CAN inteface already virtualized');
         }
     }
- 
+
     return result;
 }
