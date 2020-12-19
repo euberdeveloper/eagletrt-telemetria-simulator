@@ -8,6 +8,11 @@
         "strictNullChecks": true,
         "sourceMap": true,
         "declaration": true,
+        "paths": {
+            "@/*": ["./*"],
+            "@lib/*": ["./lib/*"],
+            "@bin/*": ["./bin/*"]
+        },
         "outDir": "../dist"
     },
 }
