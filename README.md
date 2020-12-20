@@ -1,3 +1,4 @@
+[![Github Actions](https://github.com/eagletrt/eagletrt-telemetria-simulator/workflows/Lint/badge.svg)](https://github.com/eagletrt/eagletrt-telemetria-simulator/actions)
 # eagletrt-telemetry-simulator
 
 ## EagleTRT telemetry simulator for GPS and CAN inputs.
