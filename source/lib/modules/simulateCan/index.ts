@@ -4,6 +4,7 @@ import { exec, which } from 'shelljs';
 import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
 import { Logger } from '@lib/utils';
+import { command } from 'yargs';
 
 /**
  * The interface of the options for the simulateCan function.
@@ -152,6 +153,7 @@ export async function simulateCan(
         if (!handledOptions.simulateTime) {
             commandOptions.push('-t');
         }
+        commandOptions.push(`can0=${handledOptions.canInterface}`);
         const stringifiedCommandOptions = commandOptions.join(' ');
 
         logger.info('Starting canplayer');
