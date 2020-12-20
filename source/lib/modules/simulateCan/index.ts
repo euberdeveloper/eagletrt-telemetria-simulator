@@ -153,7 +153,7 @@ export async function simulateCan(
         if (!handledOptions.simulateTime) {
             commandOptions.push('-t');
         }
-        commandOptions.push(`can0=${handledOptions.canInterface}`);
+        commandOptions.push(`${handledOptions.canInterface}=can0`);
         const stringifiedCommandOptions = commandOptions.join(' ');
 
         logger.info('Starting canplayer');
