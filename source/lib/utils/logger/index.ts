@@ -12,7 +12,7 @@ export class Logger {
     private readonly silent: boolean;
     public scope: string | null;
 
-    public constructor(silent = false, scope: string | null = null) {
+    constructor(silent = false, scope: string | null = null) {
         this.silent = silent;
         this.scope = scope;
     }

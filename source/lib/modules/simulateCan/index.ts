@@ -45,7 +45,7 @@ export class CanSimulatorInstance {
      * @param canInterface The name of the can interface.
      * @param logger The logger instance.
      */
-    public constructor(childprocess: ChildProcess, canInterface: string, logger: Logger) {
+    constructor(childprocess: ChildProcess, canInterface: string, logger: Logger) {
         this._childprocess = childprocess;
         this._canInterface = canInterface;
         this.logger = logger;
@@ -69,19 +69,19 @@ export class CanSimulatorInstance {
     /**
      * The childprocess instance of the created process.
      */
-    public get childprocess(): ChildProcess {
+    get childprocess(): ChildProcess {
         return this._childprocess;
     }
     /**
      * The name of the can interface where the messages are sent.
      */
-    public get canInterface(): string {
+    get canInterface(): string {
         return this._canInterface;
     }
     /**
      * If the process finished its job and was closed.
      */
-    public get finished(): boolean {
+    get finished(): boolean {
         return this._finished;
     }
 
