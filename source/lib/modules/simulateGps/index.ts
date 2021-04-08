@@ -46,19 +46,19 @@ export class GpsSimulatorInstance {
     /**
      * The childprocess instance of the created process.
      */
-    public get childprocess(): ChildProcess {
+    get childprocess(): ChildProcess {
         return this._childprocess;
     }
     /**
      * The name of the gps interface (the virtual serial port) where the messages are sent.
      */
-    public get gpsInterface(): string | null {
+    get gpsInterface(): string | null {
         return this._gpsInterface;
     }
     /**
      * If the process finished its job and was closed.
      */
-    public get finished(): boolean {
+    get finished(): boolean {
         return this._finished;
     }
 
@@ -67,7 +67,7 @@ export class GpsSimulatorInstance {
      * @param childprocess The childprocess instance of the process.
      * @param logger The logger instance.
      */
-    public constructor(childprocess: ChildProcess, logger: Logger) {
+    constructor(childprocess: ChildProcess, logger: Logger) {
         this._childprocess = childprocess;
         this.logger = logger;
         this._finished = false;
