@@ -4,7 +4,6 @@ import { exec, which } from 'shelljs';
 import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
 import { Logger } from '@lib/utils';
-import { command } from 'yargs';
 
 /**
  * The interface of the options for the simulateCan function.
@@ -123,7 +122,9 @@ export class CanSimulatorInstance {
     }
 }
 
-const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.can.log');
+const DEFAULT_SOURCE = process.env.IS_WEBPACK
+    ? path.join(__dirname, '..', '..', 'default_sources', 'default.can.log')
+    : path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.can.log');
 const DEFAULT_OPTIONS: SimulateCanOptions = {
     silent: true,
     canInterface: 'can0',

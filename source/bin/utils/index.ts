@@ -1,7 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-const SETTINGS_PATH = path.join(__dirname, '..', '..', '..', 'settings', 'settings.json');
+const SETTINGS_PATH = process.env.IS_WEBPACK
+    ? path.join(__dirname, '..', 'settings', 'settings.json')
+    : path.join(__dirname, '..', '..', '..', 'settings', 'settings.json');
 
 interface Settings {
     telemetryConfigPath: string | null;
