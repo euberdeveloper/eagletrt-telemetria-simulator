@@ -3,19 +3,19 @@ import * as fs from 'fs';
 
 const SETTINGS_PATH = path.join(__dirname, '..', '..', '..', 'settings', 'settings.json');
 
-interface sett {
+interface Settings {
     telemetryConfigPath: string | null;
 }
 
 function getTelemetryConfigPath(): string | null {
     const settingsTxt = fs.readFileSync(SETTINGS_PATH, 'utf-8');
-    const settings: sett = JSON.parse(settingsTxt);
+    const settings: Settings = JSON.parse(settingsTxt);
     return settings.telemetryConfigPath;
 }
 
 export function setTelemetryConfigPath(path: string | null): void {
     const settingsTxt = fs.readFileSync(SETTINGS_PATH, 'utf-8');
-    const settings: sett = JSON.parse(settingsTxt);
+    const settings: Settings = JSON.parse(settingsTxt);
     settings.telemetryConfigPath = path;
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings));
 }
