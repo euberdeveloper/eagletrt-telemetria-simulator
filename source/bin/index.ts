@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-misused-promises */
+
+if (!process.env.IS_WEBPACK) {
+    // eslint-disable-next-line
+    require('module-alias/register')
+}
+
 import * as yargs from 'yargs';
 
 import {
@@ -12,7 +18,7 @@ import {
     SimulateGpsOptions
 } from '@lib';
 
-import { setTelemetryConfigPath, updateTelemetryGpsPort } from './utils';
+import { setTelemetryConfigPath, updateTelemetryGpsPort } from '@bin/utils';
 
 yargs
     .scriptName('eagle')

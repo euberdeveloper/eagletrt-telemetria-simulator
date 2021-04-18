@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@euberdeveloper/eslint-plugin": "^1.0.3",
+    "@types/module-alias": "^2.0.0",
     "@types/node": "^14.14.41",
     "@types/shelljs": "^0.8.8",
     "@types/yargs": "^16.0.1",
@@ -64,6 +65,7 @@
     "eslint": "^7.24.0",
     "eslint-config-prettier": "^8.2.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "module-alias": "^2.2.2",
     "prettier": "^2.2.1",
     "shebang-loader": "^0.0.1",
     "shx": "^0.3.3",
@@ -81,5 +83,10 @@
     "shelljs": "^0.8.4",
     "tree-kill": "^1.2.2",
     "yargs": "^16.2.0"
+  },
+  "_moduleAliases": {
+    "@": "dist",
+    "@lib": "dist/lib",
+    "@bin": "dist/bin"
   }
 }
