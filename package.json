@@ -24,8 +24,8 @@
     "transpile": "tsc -p source",
     "prebundle": "npm run clean",
     "bundle": "IS_WEBPACK=true webpack",
-    "lint": "eslint source/**/*.ts --format codeframe",
-    "lint:fix": "eslint --fix source/**/*.ts --format codeframe",
+    "lint": "eslint ./source/**/*.ts --format codeframe",
+    "lint:fix": "eslint --fix ./source/**/*.ts --format codeframe",
     "commit": "cz",
     "prepublishOnly": "npm run gps:compile && npm run bundle"
   },
@@ -50,8 +50,7 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "@euberdeveloper/eslint-config-typescript": "^4.5.0",
-    "@euberdeveloper/eslint-plugin": "^1.0.1",
+    "@euberdeveloper/eslint-plugin": "^1.0.2",
     "@types/node": "^14.14.14",
     "@types/shelljs": "^0.8.8",
     "@types/yargs": "^15.0.12",
