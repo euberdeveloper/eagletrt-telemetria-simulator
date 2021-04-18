@@ -1,6 +1,6 @@
 {
   "name": "@eagletrt/eagletrt-telemetria-simulator",
-  "version": "3.2.14",
+  "version": "3.2.15",
   "description": "EagleTRT telemetry simulator, in order to simulate on local machine the canbus and the gps serial port",
   "main": "./bundled/lib/index.js",
   "types": "./bundled/lib/index.d.ts",
@@ -46,40 +46,40 @@
     "url": "https://github.com/eagletrt/eagletrt-telemetria-simulator/issues"
   },
   "homepage": "https://github.com/eagletrt/eagletrt-telemetria-simulator#readme",
-  "dependencies": {
-    "chalk": "^4.1.0",
-    "shelljs": "^0.8.4",
-    "tree-kill": "^1.2.2",
-    "yargs": "^16.2.0"
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   },
   "devDependencies": {
-    "@euberdeveloper/eslint-plugin": "^1.0.2",
-    "@types/node": "^14.14.14",
+    "@euberdeveloper/eslint-plugin": "^1.0.3",
+    "@types/node": "^14.14.41",
     "@types/shelljs": "^0.8.8",
-    "@types/yargs": "^15.0.12",
+    "@types/yargs": "^16.0.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "commitizen": "^4.2.2",
+    "commitizen": "^4.2.3",
     "cz-conventional-changelog": "^3.3.0",
     "dts-bundle-webpack": "^1.0.2",
-    "eslint": "^7.16.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-plugin-prettier": "^3.3.0",
+    "eslint": "^7.24.0",
+    "eslint-config-prettier": "^8.2.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "prettier": "^2.2.1",
     "shebang-loader": "^0.0.1",
     "shx": "^0.3.3",
     "ts-loader": "^8.1.0",
     "ttypescript": "^1.5.12",
     "typedoc": "^0.20.35",
-    "typescript": "^4.1.3",
+    "typescript": "^4.2.4",
     "typescript-transform-paths": "^2.2.3",
     "webpack": "^5.33.2",
     "webpack-cli": "^4.6.0",
     "webpack-node-externals": "^2.5.2"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "shelljs": "^0.8.4",
+    "tree-kill": "^1.2.2",
+    "yargs": "^16.2.0"
   }
 }
