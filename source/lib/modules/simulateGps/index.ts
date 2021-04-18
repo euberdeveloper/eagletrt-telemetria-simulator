@@ -149,7 +149,9 @@ export class GpsSimulatorInstance {
     }
 }
 
-const DEFAULT_SOURCE = path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.gps.ubx');
+const DEFAULT_SOURCE = process.env.IS_WEBPACK
+    ? path.join(__dirname, '..', '..', 'default_sources', 'default.gps.ubx')
+    : path.join(__dirname, '..', '..', '..', '..', 'default_sources', 'default.gps.ubx');
 const DEFAULT_OPTIONS: SimulateGpsOptions = {
     silent: true,
     iterations: Infinity,
@@ -188,7 +190,9 @@ export async function simulateGps(
             commandOptions.push('-k');
         }
         const stringifiedCommandOptions = commandOptions.join(' ');
-        const pathToGpsSimulator = path.join(__dirname, '..', '..', '..', '..', 'gps_simulator', 'gps_simulator.out');
+        const pathToGpsSimulator = process.env.IS_WEBPACK
+            ? path.join(__dirname, '..', '..', 'gps_simulator', 'gps_simulator.out')
+            : path.join(__dirname, '..', '..', '..', '..', 'gps_simulator', 'gps_simulator.out');
 
         logger.info('Starting gps simulator');
         const childProcess = exec(`${pathToGpsSimulator} ${stringifiedCommandOptions}`, {
