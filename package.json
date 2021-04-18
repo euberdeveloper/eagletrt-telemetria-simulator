@@ -1,6 +1,6 @@
 {
   "name": "@eagletrt/eagletrt-telemetria-simulator",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "EagleTRT telemetry simulator, in order to simulate on local machine the canbus and the gps serial port",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
@@ -28,7 +28,11 @@
     "type": "git",
     "url": "git+https://github.com/eagletrt/eagletrt-telemetria-simulator.git"
   },
-  "author": "Eugenio Berretta <euberdeveloper@gmail.com> & Giacomo Ascari <giacomo.ascari@studenti.unitn.it>",
+  "author": "Eugenio Berretta <euberdeveloper@gmail.com>",
+  "contributors": [
+    "Giacomo Ascari <giacomo.ascari@studenti.unitn.it>",
+    "Filippo Gastaldello <filippo.gastaldello@studenti.unitn.it"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/eagletrt/eagletrt-telemetria-simulator/issues"
@@ -58,10 +62,5 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  },
-  "_moduleAliases": {
-    "@": "dist",
-    "@lib": "dist/lib",
-    "@bin": "dist/bin"
   }
 }
