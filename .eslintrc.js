@@ -2,15 +2,12 @@ const path = require('path');
 
 module.exports = {
     parserOptions: {
-        ecmaVersion: 2018,
-        sourceType: 'module',
-        project: path.join(__dirname, 'tsconfig.json')
+        project: path.join(__dirname, 'source', 'tsconfig.json')
     },
-    plugins: ['prettier'],
+    plugins: ['@euberdeveloper'],
     extends: [
-        '@euberdeveloper/typescript',
-        'prettier/@typescript-eslint',
-        'plugin:prettier/recommended'
+        'plugin:@euberdeveloper/typescript',
+        'plugin:@euberdeveloper/prettier'
     ],
     rules: {
         '@typescript-eslint/restrict-template-expressions': 'off',
