@@ -1,6 +1,6 @@
 if (!process.env.IS_WEBPACK) {
     // eslint-disable-next-line
-    require('module-alias/register')
+    require('module-alias/register');
 }
 
 export * from './modules/virtualizeCan';
