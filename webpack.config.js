@@ -32,7 +32,7 @@ const libConfig = {
     },
     plugins: [
         new DtsBundleWebpack({
-            name: '@eagletrt/eagletrt-telemetria-simulator',
+            name: '@eagletrt/telemetria-simulator',
             main: 'dist/lib/index.d.ts',
             out: '../../bundled/lib/index.d.ts'
         }),
@@ -42,7 +42,7 @@ const libConfig = {
     output: {
         path: path.resolve(__dirname, 'bundled', 'lib'),
         filename: 'index.js',
-        library: '@eagletrt/eagletrt-telemetria-simulator',
+        library: '@eagletrt/telemetria-simulator',
         libraryTarget: 'umd',
         globalObject: 'this',
         umdNamedDefine: true,
@@ -85,7 +85,7 @@ const binConfig = {
     externals: [{
         '../lib/index': {
             amd: '../lib/index.js',
-            root: '@eagletrt/eagletrt-telemetria-simulator',
+            root: '@eagletrt/telemetria-simulator',
             commonjs: '../lib/index.js',
             commonjs2: '../lib/index.js'
         }
@@ -93,7 +93,7 @@ const binConfig = {
     output: {
         path: path.resolve(__dirname, 'bundled', 'bin'),
         filename: 'index.js',
-        library: '@eagletrt/eagletrt-telemetria-simulator',
+        library: '@eagletrt/telemetria-simulator',
         libraryTarget: 'umd',
         globalObject: 'this',
         umdNamedDefine: true,

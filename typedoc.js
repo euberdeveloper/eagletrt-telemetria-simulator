@@ -2,7 +2,7 @@ module.exports = {
     entryPoints: [
         './source/lib/index.ts'
     ],
-    name: '@eagletrt/eagletrt-telemetria-simulator',
+    name: '@eagletrt/telemetria-simulator',
     excludeExternals: true,
     includeVersion: true,
     tsconfig: 'source/tsconfig.json',

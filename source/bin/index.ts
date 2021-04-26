@@ -21,7 +21,7 @@ import {
 import { setTelemetryConfigPath, updateTelemetryGpsPort } from '@bin/utils';
 
 yargs
-    .scriptName('eagle')
+    .scriptName('eagletrt-simulator')
     .command('virtualize', 'Virtualize a canbus interface', yargs => {
         yargs
             .command(
@@ -313,6 +313,4 @@ yargs
         }
     )
     .demandCommand(1, 'You must use either virtualize of simulate command')
-    .epilogue(
-        'For more information, find our manual at https://github.com/eagletrt/eagletrt-telemetria-simulator#readme'
-    ).argv;
+    .epilogue('For more information, find our manual at https://github.com/eagletrt/telemetria-simulator#readme').argv;
