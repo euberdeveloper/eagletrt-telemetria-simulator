@@ -83,7 +83,7 @@ const binConfig = {
         ]
     },
     externals: [{
-        '@lib': {
+        '../lib/index': {
             amd: '../lib/index.js',
             root: '@eagletrt/eagletrt-telemetria-simulator',
             commonjs: '../lib/index.js',
