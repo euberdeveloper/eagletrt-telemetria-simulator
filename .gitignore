@@ -2,3 +2,4 @@ node_modules
 dist
 bundled
 docs/documentation
+gps_simulator/gps_simulator.out
