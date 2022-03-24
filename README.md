@@ -166,6 +166,8 @@ This module was used in the telemetry sender [repo](https://github.com/eagletrt/
 
 Note that this module uses **yargs** for the cli and the yargs commands and options are **modular**: this means that they can be imported and used by other modules that consists in a cli and wrap this library, such as the **eagle-cli**.
 
+The GPS simulator is written in C and compiled during installation. If this does not happen, there is a script in the `package.json` exactly to do it. The C program is valid only on Linux.
+
 ## Build
 
 To build for production, using webpack:
